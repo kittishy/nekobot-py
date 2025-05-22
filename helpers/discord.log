@@ -1,0 +1,13 @@
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'fun'
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'general'
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'level'
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'moderation'
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'owner'
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'template'
+[2023-08-21 16:59:00] [INFO    ] discord_bot: Loaded extension 'ticket'
+[2023-08-21 16:59:03] [INFO    ] discord_bot: Logged in as yuuki
+[2023-08-21 16:59:03] [INFO    ] discord_bot: discord.py API version: 2.3.2
+[2023-08-21 16:59:03] [INFO    ] discord_bot: Python version: 3.11.4
+[2023-08-21 16:59:03] [INFO    ] discord_bot: Running on: Windows 10 (nt)
+[2023-08-21 16:59:03] [INFO    ] discord_bot: -------------------
+[2023-08-21 16:59:49] [INFO    ] discord_bot: Executed say command in Virtual Palace #1k (ID: 999038656885043201) by 916shoco (ID: 1098019806193668146)
