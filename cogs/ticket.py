@@ -100,7 +100,7 @@ class Ticket(commands.Cog, name="ticket"):
     async def ticket(self, ctx: commands.Context):
         print(f"Painel command triggered by {ctx.author.name}")
         embed = discord.Embed(
-            colour=discord.Color.pink(),
+            colour=0xabc4eb,
             title="Bem-vindo ao Cantinho de Ajuda do Neko Café!",
             description="Miau! Está com alguma dúvida ou precisa de um help da nossa staff fofinha? Sem problemas! É só clicar no botão abaixo e abrir um ticket, tá bom?\n\nVocê pode chamar a gente para:\n• Tirar dúvidas\n• Fazer uma denúncia\n• Pedir parceria\n• Pedir patrocínio\n• Comprar vip\n\nRegrinhas rápidas:\n• Explique direitinho o que você precisa, com jeitinho!\n• Aguarde com paciência, vamos te responder com muito carinho!\n• Não abra vários tickets iguais, tá bom?\n\nEstamos aqui pra cuidar de você com muito amor e cafuné!\n– Equipe Neko Café"
         )
