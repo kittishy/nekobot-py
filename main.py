@@ -149,6 +149,7 @@ async def on_ready() -> None:
     if config["sync_commands_globally"]:
         bot.logger.info("Attempting to sync commands globally...")
         try:
+            # await bot.tree.clear_commands()
             await bot.tree.sync()
             bot.logger.info("Commands synced globally successfully.")
         except Exception as e:
@@ -278,16 +279,19 @@ async def load_cogs() -> None:
     """
     The code in this function is executed whenever the bot will start.
     """
-    # Load only the ticket cog
-    extension = "ticket"
-    try:
-        await bot.load_extension(f"cogs.{extension}")
-        bot.logger.info(f"Loaded extension '{extension}'")
-    except Exception as e:
-        exception = f"{type(e).__name__}: {e}"
-        bot.logger.error(f"Failed to load extension {extension}\n{exception}")
+    for extension in [f for f in os.listdir("cogs") if os.path.isfile(os.path.join("cogs", f)) and f.endswith(".py")]:
+        try:
+            await bot.load_extension(f"cogs.{extension[:-3]}")
+            bot.logger.info(f"Loaded extension '{extension[:-3]}'")
+        except Exception as e:
+            exception = f"{type(e).__name__}: {e}"
+            bot.logger.error(f"Failed to load extension {extension}\n{exception}")
 
 
-asyncio.run(init_db())
-asyncio.run(load_cogs())
-bot.run(config["token"])
+async def main():
+    await init_db()
+    await load_cogs()
+    await bot.start(config["token"])
+
+if __name__ == "__main__":
+    asyncio.run(main())

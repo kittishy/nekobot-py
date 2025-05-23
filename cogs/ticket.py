@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from helpers import checks, db_manager
 
-id_cargo_atendente = "1064393279682129960"
+id_cargo_atendente = 1064393279682129960  # Corrigido para inteiro
 
 class Dropdown(discord.ui.Select):
     def __init__(self):
@@ -50,13 +50,13 @@ class CreateTicket(discord.ui.View):
                 else:
                     await interaction.response.send_message(ephemeral=True, content=f"Você já tem um atendimento em andamento!")
                     return
-
+    
         async for thread in interaction.channel.archived_threads(private=True):
             if f"{interaction.user.id}" in thread.name:
                 if thread.archived:
                     ticket = thread
                 else:
-                    await interaction.edit_original_response(content=f"Você já tem um atendimento em andamento!", view=None) # Assuming this is an interaction on the panel message
+                    await interaction.edit_original_response(content=f"Você já tem um atendimento em andamento!", view=None)  // Assuming this is an interaction on the panel message
                     return
         
         if ticket is not None:
@@ -65,10 +65,18 @@ class CreateTicket(discord.ui.View):
         else:
             ticket = await interaction.channel.create_thread(name=f"{interaction.user.name} ({interaction.user.id})", auto_archive_duration=10080)
             await ticket.edit(invitable=False)
-
+    
         await interaction.response.send_message(ephemeral=True, content=f"Criei um ticket para você! {ticket.mention}")
         await ticket.send(f"📩  **|** || {interaction.user.mention} <@&1064393279682129960> ||  Ticket criado com sucesso! Envie todas as informações possíveis sobre seu caso e aguarde até que um atendente responda.\n\n Após a sua questão ser resolvida, clique em ""Fechar Ticket"" para encerrar o atendimento!")
         await ticket.send(view=Close_Ticket())
+
+    async def confirm(self, interaction:discord.Interaction, button:discord.ui.Button):
+        mod = interaction.guild.get_role(id_cargo_atendente)
+        if str(interaction.user.id) in interaction.channel.name or (mod and mod in interaction.user.roles):
+            await interaction.response.send_message(f"O ticket foi arquivado por {interaction.user.mention}, obrigado por entrar em contato!")
+            await interaction.channel.edit(archived=True, locked=True)
+        else:
+            await interaction.response.send_message("Você não tem permissão para fechar este ticket.")
 
 class TicketPanelView(discord.ui.View):
     def __init__(self):
@@ -82,11 +90,11 @@ class Close_Ticket(discord.ui.View):
     @discord.ui.button(label="Fechar Ticket", style=discord.ButtonStyle.red, emoji="🔒", custom_id='Close_Ticket')
     async def confirm(self, interaction:discord.Interaction, button:discord.ui.Button):
         mod = interaction.guild.get_role(id_cargo_atendente)
-        if str(interaction.user.id) in interaction.channel.name or mod in interaction.author.roles:
+        if str(interaction.user.id) in interaction.channel.name or (mod and mod in interaction.user.roles):
             await interaction.response.send_message(f"O ticket foi arquivado por {interaction.user.mention}, obrigado por entrar em contato!")
             await interaction.channel.edit(archived=True, locked=True)
         else:
-            await interaction.response.send_message("Isso não pode ser feito aqui...") 
+            await interaction.response.send_message("Você não tem permissão para fechar este ticket.")
 
 class Ticket(commands.Cog, name="ticket"):
     def __init__(self, bot):
