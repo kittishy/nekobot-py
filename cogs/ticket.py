@@ -102,9 +102,10 @@ class Ticket(commands.Cog, name="ticket"):
         embed = discord.Embed(
             colour=0xabc4eb,
             title="Bem-vindo ao Cantinho de Ajuda do Neko Café!",
-            description="Miau! Está com alguma dúvida ou precisa de um help da nossa staff fofinha? Sem problemas! É só clicar no botão abaixo e abrir um ticket, tá bom?\n\nRegrinhas rápidas:\n• Explique direitinho o que você precisa, com jeitinho!\n• Aguarde com paciência, vamos te responder com muito carinho!\n• Não abra vários tickets iguais, tá bom?\n\nEstamos aqui pra cuidar de você com muito amor e cafuné!\n– Equipe Neko Café"
+            description="Miau! Está com alguma dúvida ou precisa de um help da nossa staff fofinha? Sem problemas! É só clicar no botão abaixo e abrir um ticket, tá bom?\n\nRegrinhas rápidas:\n• Explique direitinho o que você precisa, com jeitinho!\n• Aguarde com paciência, vamos te responder com muito carinho!\n• Não abra vários tickets iguais, tá bom?\n\nEstamos aqui pra cuidar de você com muito amor e cafuné!"
         )
         embed.set_image(url="https://i.imgur.com/vVvNwFc.png")
+        embed.set_footer(text="Equipe Neko Café")
         await ctx.send(embed=embed, view=TicketPanelView())
 
 async def setup(bot):
