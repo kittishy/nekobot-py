@@ -6,7 +6,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+config.json
+# Jupyter Notebook
+*.ipynb
+# IPython
+profile_default/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
