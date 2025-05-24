@@ -67,7 +67,7 @@ class CreateTicket(discord.ui.View):
             await ticket.edit(invitable=False)
     
         await interaction.response.send_message(ephemeral=True, content=f"Criei um ticket para você! {ticket.mention}")
-        await ticket.send(f"📩  **|** || {interaction.user.mention} <@&1064393279682129960> ||  Ticket criado com sucesso! Envie todas as informações possíveis sobre seu caso e aguarde até que um atendente responda.\n\n Após a sua questão ser resolvida, clique em ""Fechar Ticket"" para encerrar o atendimento!")
+        await ticket.send(f"📩  **|** || {interaction.user.mention} <@&1367329521191227423> ||  Ticket criado com sucesso! Envie todas as informações possíveis sobre seu caso e aguarde até que um atendente responda.\n\n Após a sua questão ser resolvida, clique em ""Fechar Ticket"" para encerrar o atendimento!")
         await ticket.send(view=Close_Ticket())
 
     async def confirm(self, interaction:discord.Interaction, button:discord.ui.Button):
