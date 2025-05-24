@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from helpers import checks, db_manager
 
-id_cargo_atendente = 1064393279682129960  # Corrigido para inteiro
+id_cargo_atendente = 1367329521191227423  # Corrigido para inteiro
 
 class Dropdown(discord.ui.Select):
     def __init__(self):
