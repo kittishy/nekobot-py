@@ -56,7 +56,7 @@ class CreateTicket(discord.ui.View):
                 if thread.archived:
                     ticket = thread
                 else:
-                    await interaction.edit_original_response(content=f"Você já tem um atendimento em andamento!", view=None)  // Assuming this is an interaction on the panel message
+                    await interaction.edit_original_response(content=f"Você já tem um atendimento em andamento!", view=None)  # Assuming this is an interaction on the panel message
                     return
         
         if ticket is not None:

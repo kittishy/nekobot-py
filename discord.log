@@ -1,9 +1,14 @@
-[2025-05-22 15:12:06] [INFO    ] discord_bot: Loaded extension 'ticket'
-[2025-05-22 15:12:10] [INFO    ] discord_bot: Logged in as Abyss
-[2025-05-22 15:12:10] [INFO    ] discord_bot: discord.py API version: 2.5.2
-[2025-05-22 15:12:10] [INFO    ] discord_bot: Python version: 3.12.10
-[2025-05-22 15:12:10] [INFO    ] discord_bot: Running on: Windows 11 (nt)
-[2025-05-22 15:12:10] [INFO    ] discord_bot: -------------------
-[2025-05-22 15:12:10] [INFO    ] discord_bot: Attempting to sync commands globally...
-[2025-05-22 15:12:10] [INFO    ] discord_bot: Commands synced globally successfully.
-[2025-05-22 15:12:17] [INFO    ] discord_bot: Executed painel command in Constelação Solar (ID: 1316785168731738142) by gxth_akemi (ID: 334980960351158276)
+[2025-05-24 09:18:15] [INFO    ] discord_bot: Loaded extension 'boost'
+[2025-05-24 09:18:15] [INFO    ] discord_bot: Loaded extension 'form'
+[2025-05-24 09:18:15] [INFO    ] discord_bot: Loaded extension 'moderation'
+[2025-05-24 09:18:15] [INFO    ] discord_bot: Loaded extension 'rules'
+[2025-05-24 09:18:15] [INFO    ] discord_bot: Loaded extension 'template'
+[2025-05-24 09:18:15] [INFO    ] discord_bot: Loaded extension 'ticket'
+[2025-05-24 09:18:18] [INFO    ] discord_bot: Logged in as Strawberry
+[2025-05-24 09:18:18] [INFO    ] discord_bot: discord.py API version: 2.5.2
+[2025-05-24 09:18:18] [INFO    ] discord_bot: Python version: 3.12.10
+[2025-05-24 09:18:18] [INFO    ] discord_bot: Running on: Windows 11 (nt)
+[2025-05-24 09:18:18] [INFO    ] discord_bot: -------------------
+[2025-05-24 09:18:18] [INFO    ] discord_bot: Attempting to sync commands globally...
+[2025-05-24 09:18:19] [INFO    ] discord_bot: Commands synced globally successfully.
+[2025-05-24 09:18:27] [INFO    ] discord_bot: Executed boost command in Constelação Solar (ID: 1316785168731738142) by gxth_akemi (ID: 334980960351158276)

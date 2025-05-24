@@ -294,7 +294,7 @@ class Moderation(commands.Cog, name="moderation"):
         """
         await context.send(
             "Deletando mensagens..."
-        )  // Uma maneira um pouco improvisada de garantir que o bot responda à interação e não receba uma resposta "Interação Desconhecida"
+        )  # Uma maneira um pouco improvisada de garantir que o bot responda à interação e não receba uma resposta "Interação Desconhecida"
         purged_messages = await context.channel.purge(limit=amount + 1)
         embed = discord.Embed(
             description=f"**{context.author}** limpou **{len(purged_messages)-1}** mensagens!",

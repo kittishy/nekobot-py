@@ -80,7 +80,7 @@ class Boost(commands.Cog, name="boost"):
             )
 
     @commands.hybrid_command(name="boost", description='Mostra informações sobre boost')
-    async def boost(self, interaction: discord.Interaction):
+    async def boost(self, ctx: commands.Context):
         # Criando a embed baseada no JSON fornecido
         embed = discord.Embed(
             title="Seja neko booster!",
@@ -91,7 +91,11 @@ class Boost(commands.Cog, name="boost"):
         # Adicionando a imagem
         embed.set_image(url="https://cdn.discordapp.com/attachments/1334474182049796131/1373811365273141358/seja_booster_by_aishy_.png?ex=6831b3c9&is=68306249&hm=8855acce0a23379ca9dd045958db1067ec13f02e0db50e31d71a6621509245eb&")
         
-        await interaction.response.send_message(embed=embed)
+        # Check if invoked as slash or prefix
+        if hasattr(ctx, "interaction") and ctx.interaction is not None:
+            await ctx.interaction.response.send_message(embed=embed)
+        else:
+            await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Boost(bot))

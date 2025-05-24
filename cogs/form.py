@@ -53,4 +53,4 @@ class Modals(commands.Cog, name="form"):
 
 async def setup(bot):
    bot.add_view(Formulario())
-   await bot.add_cog(Form(bot))
+   await bot.add_cog(Modals(bot))
