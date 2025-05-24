@@ -10,8 +10,13 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
+import logging
+import asyncio
+from datetime import datetime, timedelta
 
 from helpers import checks, db_manager
+
+logger = logging.getLogger(__name__)
 
 
 class Moderation(commands.Cog, name="moderation"):
@@ -39,36 +44,85 @@ class Moderation(commands.Cog, name="moderation"):
         :param user: O usuário que deve ser expulso do servidor.
         :param reason: O motivo da expulsão. Padrão é "Não especificado".
         """
-        member = context.guild.get_member(user.id) or await context.guild.fetch_member(
-            user.id
-        )
-        if member.guild_permissions.administrator:
+        try:
+            member = context.guild.get_member(user.id)
+            if not member:
+                try:
+                    member = await context.guild.fetch_member(user.id)
+                except discord.NotFound:
+                    embed = discord.Embed(
+                        description="❌ Usuário não encontrado no servidor.",
+                        color=0xE02B2B
+                    )
+                    await context.send(embed=embed)
+                    return
+            
+            # Verificar se o usuário pode ser expulso
+            if member.guild_permissions.administrator:
+                embed = discord.Embed(
+                    description="❌ O usuário tem permissões de administrador.", 
+                    color=0xE02B2B
+                )
+                await context.send(embed=embed)
+                return
+            
+            if member.top_role >= context.guild.me.top_role:
+                embed = discord.Embed(
+                    description="❌ Não posso expulsar este usuário. Meu cargo deve estar acima do cargo dele.",
+                    color=0xE02B2B
+                )
+                await context.send(embed=embed)
+                return
+            
+            if context.author != context.guild.owner and member.top_role >= context.author.top_role:
+                embed = discord.Embed(
+                    description="❌ Você não pode expulsar este usuário. Seu cargo deve estar acima do cargo dele.",
+                    color=0xE02B2B
+                )
+                await context.send(embed=embed)
+                return
+
+            # Tentar enviar DM antes de expulsar
+            dm_sent = False
+            try:
+                await member.send(
+                    f"🚪 Você foi expulso do servidor **{context.guild.name}** por **{context.author}**\n"
+                    f"📝 Motivo: {reason}"
+                )
+                dm_sent = True
+            except (discord.Forbidden, discord.HTTPException):
+                logger.warning(f"Não foi possível enviar DM para {member} antes da expulsão")
+
+            # Expulsar o usuário
+            await member.kick(reason=f"Por {context.author} - {reason}")
+            
+            # Embed de confirmação
             embed = discord.Embed(
-                description="O usuário tem permissões de administrador.", color=0xE02B2B
+                title="✅ Usuário Expulso",
+                description=f"**{member}** foi expulso por **{context.author}**",
+                color=0x9C84EF,
+                timestamp=datetime.utcnow()
+            )
+            embed.add_field(name="📝 Motivo", value=reason, inline=False)
+            embed.add_field(name="💬 DM Enviada", value="✅ Sim" if dm_sent else "❌ Não", inline=True)
+            embed.set_footer(text=f"ID do usuário: {member.id}")
+            
+            await context.send(embed=embed)
+            logger.info(f"{context.author} expulsou {member} do servidor {context.guild.name}. Motivo: {reason}")
+            
+        except discord.Forbidden:
+            embed = discord.Embed(
+                description="❌ Não tenho permissões para expulsar este usuário.",
+                color=0xE02B2B
             )
             await context.send(embed=embed)
-        else:
-            try:
-                embed = discord.Embed(
-                    description=f"**{member}** foi expulso por **{context.author}**!",
-                    color=0x9C84EF,
-                )
-                embed.add_field(name="Motivo:", value=reason)
-                await context.send(embed=embed)
-                try:
-                    await member.send(
-                        f"Você foi expulso por **{context.author}** do servidor **{context.guild.name}**!\nMotivo: {reason}"
-                    )
-                except:
-                    # Não foi possível enviar uma mensagem nas mensagens privadas do usuário
-                    pass
-                await member.kick(reason=reason)
-            except:
-                embed = discord.Embed(
-                    description="Ocorreu um erro ao tentar expulsar o usuário. Certifique-se de que meu cargo está acima do cargo do usuário que você deseja expulsar.",
-                    color=0xE02B2B,
-                )
-                await context.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Erro ao expulsar usuário {user}: {e}")
+            embed = discord.Embed(
+                description="❌ Ocorreu um erro inesperado ao tentar expulsar o usuário.",
+                color=0xE02B2B
+            )
+            await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="apelido",
@@ -284,23 +338,83 @@ class Moderation(commands.Cog, name="moderation"):
     @commands.has_guild_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     @checks.not_blacklisted()
-    @app_commands.describe(amount="A quantidade de mensagens que devem ser deletadas.")
-    async def purge(self, context: Context, amount: int) -> None:
+    @app_commands.describe(
+        amount="A quantidade de mensagens que devem ser deletadas (1-100).",
+        user="Deletar apenas mensagens de um usuário específico (opcional)."
+    )
+    async def purge(self, context: Context, amount: int, user: discord.Member = None) -> None:
         """
         Deleta um número de mensagens.
 
         :param context: O contexto do comando híbrido.
         :param amount: O número de mensagens que devem ser deletadas.
+        :param user: Usuário específico para deletar mensagens (opcional).
         """
-        await context.send(
-            "Deletando mensagens..."
-        )  # Uma maneira um pouco improvisada de garantir que o bot responda à interação e não receba uma resposta "Interação Desconhecida"
-        purged_messages = await context.channel.purge(limit=amount + 1)
-        embed = discord.Embed(
-            description=f"**{context.author}** limpou **{len(purged_messages)-1}** mensagens!",
-            color=0x9C84EF,
-        )
-        await context.channel.send(embed=embed)
+        if amount < 1 or amount > 100:
+            embed = discord.Embed(
+                description="❌ O número de mensagens deve estar entre 1 e 100.",
+                color=0xE02B2B
+            )
+            await context.send(embed=embed, ephemeral=True)
+            return
+        
+        try:
+            # Responder primeiro para evitar "Interação Desconhecida"
+            await context.response.defer()
+            
+            def check_message(message):
+                if user:
+                    return message.author == user
+                return True
+            
+            # Deletar mensagens
+            deleted = await context.channel.purge(
+                limit=amount if not user else 200,  # Se filtrar por usuário, verificar mais mensagens
+                check=check_message,
+                before=context.message if hasattr(context, 'message') else None
+            )
+            
+            # Se filtrar por usuário, limitar ao amount solicitado
+            if user and len(deleted) > amount:
+                deleted = deleted[:amount]
+            
+            # Embed de confirmação
+            embed = discord.Embed(
+                title="🧹 Mensagens Deletadas",
+                color=0x9C84EF,
+                timestamp=datetime.utcnow()
+            )
+            
+            if user:
+                embed.description = f"**{len(deleted)}** mensagens de **{user.mention}** foram deletadas por **{context.author.mention}**"
+            else:
+                embed.description = f"**{len(deleted)}** mensagens foram deletadas por **{context.author.mention}**"
+            
+            embed.set_footer(text=f"Canal: #{context.channel.name}")
+            
+            # Enviar confirmação e deletar após 5 segundos
+            confirmation = await context.followup.send(embed=embed)
+            await asyncio.sleep(5)
+            try:
+                await confirmation.delete()
+            except:
+                pass
+                
+            logger.info(f"{context.author} deletou {len(deleted)} mensagens em #{context.channel.name}")
+            
+        except discord.Forbidden:
+            embed = discord.Embed(
+                description="❌ Não tenho permissões para deletar mensagens neste canal.",
+                color=0xE02B2B
+            )
+            await context.followup.send(embed=embed, ephemeral=True)
+        except Exception as e:
+            logger.error(f"Erro ao deletar mensagens: {e}")
+            embed = discord.Embed(
+                description="❌ Ocorreu um erro ao deletar as mensagens.",
+                color=0xE02B2B
+            )
+            await context.followup.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(
         name="banir_id",
