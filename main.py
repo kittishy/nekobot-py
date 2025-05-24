@@ -12,6 +12,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Bot, Context
 
 import exceptions
+from helpers import checks, db_manager
 
 if not os.path.isfile(f"{os.path.realpath(os.path.dirname(__file__))}/config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
@@ -54,13 +55,11 @@ intents.presences = True
 
 intents = discord.Intents.default()
 
-"""
-Uncomment this if you want to use prefix (normal) commands.
-It is recommended to use slash commands and therefore not use prefix commands.
-
-If you want to use prefix commands, make sure to also enable the intent below in the Discord developer portal.
-"""
-intents.message_content = True
+# Habilitar intents necessários para o funcionamento completo do bot
+intents.message_content = True  # Necessário para comandos de prefixo e conteúdo de mensagens
+intents.members = True  # Necessário para comandos de moderação que referenciam membros
+intents.guilds = True  # Necessário para operações de servidor
+intents.guild_messages = True  # Necessário para processar mensagens do servidor
 
 bot = Bot(
     command_prefix=commands.when_mentioned_or(config["prefix"]),
@@ -145,6 +144,17 @@ async def on_ready() -> None:
     bot.logger.info(f"Python version: {platform.python_version()}")
     bot.logger.info(f"Running on: {platform.system()} {platform.release()} ({os.name})")
     bot.logger.info("-------------------")
+    
+    # Inicializar views persistentes para o sistema de tickets
+    try:
+        from cogs.ticket import TicketPanelView, CreateTicket, Close_Ticket
+        bot.add_view(TicketPanelView())
+        bot.add_view(CreateTicket())
+        bot.add_view(Close_Ticket())
+        bot.logger.info("Persistent views loaded successfully.")
+    except ImportError as e:
+        bot.logger.warning(f"Could not load persistent views: {e}")
+    
     status_task.start()
     if config["sync_commands_globally"]:
         bot.logger.info("Attempting to sync commands globally...")
@@ -278,8 +288,14 @@ async def load_cogs() -> None:
     """
     The code in this function is executed whenever the bot will start.
     """
-    for file in os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}/cogs"):
-        if file.endswith(".py"):
+    cogs_dir = f"{os.path.realpath(os.path.dirname(__file__))}/cogs"
+    
+    if not os.path.exists(cogs_dir):
+        bot.logger.error(f"Cogs directory not found: {cogs_dir}")
+        return
+    
+    for file in os.listdir(cogs_dir):
+        if file.endswith(".py") and not file.startswith("__"):
             extension = file[:-3]
             try:
                 await bot.load_extension(f"cogs.{extension}")
@@ -287,8 +303,33 @@ async def load_cogs() -> None:
             except Exception as e:
                 exception = f"{type(e).__name__}: {e}"
                 bot.logger.error(f"Failed to load extension {extension}\n{exception}")
+                # Continue loading other cogs even if one fails
+                continue
 
 
-asyncio.run(init_db())
-asyncio.run(load_cogs())
-bot.run(config["token"])
+async def main():
+    """
+    Função principal para inicializar o bot de forma assíncrona.
+    """
+    try:
+        # Inicializar banco de dados
+        await init_db()
+        bot.logger.info("Database initialized successfully.")
+        
+        # Carregar cogs
+        await load_cogs()
+        
+        # Iniciar o bot
+        await bot.start(config["token"])
+    except Exception as e:
+        bot.logger.error(f"Failed to start bot: {e}")
+        raise
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        bot.logger.info("Bot stopped by user.")
+    except Exception as e:
+        bot.logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
