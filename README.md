@@ -141,3 +141,4 @@ Se você encontrar problemas, verifique:
 2. Se todas as dependências estão instaladas
 3. Se a configuração está correta
 4. Se os intents estão habilitados no Discord Developer Portal
+# nekobot-py
