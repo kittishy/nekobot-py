@@ -57,7 +57,7 @@ A equipe está aqui para ajudar. Qualquer tentativa de burlar regras ou desrespe
 
 10. Divirta-se e aproveite o café!
 Nosso cantinho é feito com carinho para quem ama animes, jogos e cultura otaku. Faça amigos, participe dos eventos e aproveite ao máximo!""",
-            color=0xF7C65E  # Cor da embed original convertida
+            color=16240606  # Cor da embed original convertida
         )
         embed.set_image(url="https://cdn.discordapp.com/attachments/1334474182049796131/1374372618710417509/regras_by_aishy.png?ex=6831c43e&is=683072be&hm=4ee2c472c7fdd013e978b451b3ffd87baa8b8c3654fcee712beb831105d605a6&")
         embed.set_footer(text="Equipe Neko Café")
